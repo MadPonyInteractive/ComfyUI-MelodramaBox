@@ -1,0 +1,27 @@
+[project]
+name = "comfyui-melodramabox"
+description = "Native ComfyUI nodes for resemble-ai/DramaBox — expressive, prompt-driven TTS with zero-shot voice cloning (LTX-2.3 audio-only DiT, 3.3B). Componentized loaders with ComfyUI-managed VRAM. Audio generation only."
+version = "2.1.0"
+license = { file = "LICENSE" }
+dependencies = [
+    "huggingface_hub>=0.24",
+    "safetensors>=0.4",
+    "soundfile>=0.12",
+    "torchaudio",
+    "numpy",
+    "einops>=0.7",
+    "transformers>=4.53",
+    "accelerate>=0.25.0",
+    "sentencepiece>=0.1.99",
+    "resemble-perth",
+    "gguf-connector>=3.6",
+]
+
+[project.urls]
+Repository = "https://github.com/MadPonyInteractive/ComfyUI-MelodramaBox"
+
+[tool.comfy]
+PublisherId = "doggeddalle"
+DisplayName = "ComfyUI-MelodramaBox"
+Icon = ""
+includes = []

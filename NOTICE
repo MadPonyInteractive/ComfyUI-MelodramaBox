@@ -1,0 +1,50 @@
+ComfyUI-MelodramaBox
+Copyright (c) doggeddalle
+
+This product includes software developed by doggeddalle, distributed under the
+Apache License, Version 2.0. The unmodified LICENSE is retained in this
+repository.
+
+------------------------------------------------------------------------------
+MODIFICATIONS
+------------------------------------------------------------------------------
+
+This repository is a fork maintained by Mad Pony Interactive. It is based on
+`comfyui-melodramabox` version 2.1.0 as published to the ComfyUI Registry
+(https://registry.comfy.org/nodes/comfyui-melodramabox). The upstream source
+repository named in that release's pyproject.toml,
+https://github.com/doggeddalle/ComfyUI-MelodramaBox, returns 404, so the
+changes below could not be contributed upstream.
+
+The following files were modified. Each change is marked in place with an
+`MPI-607` comment.
+
+1. dramabox_nodes/downloader.py
+   `ensure_text_encoder` inspected only the FIRST registered `text_encoders`
+   root. Roots added via extra_model_paths.yaml are appended to that list and
+   never prepended, so a shared model store was invisible and the pack would
+   re-download the ~8 GB Gemma-3 snapshot even when it was already present.
+   Now every registered root is checked before downloading.
+
+2. dramabox_nodes/loaders.py
+   The documented `.gguf` DiT workflow could not be selected. ComfyUI's
+   `supported_pt_extensions` does not contain `.gguf`, so
+   `get_filename_list("diffusion_models")` can never return one, and the
+   loader's dropdown was therefore always empty of GGUF files. Now the
+   registered roots are scanned directly. Deliberately NOT fixed by adding
+   `.gguf` to `supported_pt_extensions`, which is a global shared by every
+   installed node pack.
+
+3. dramabox_nodes/model_management.py
+   `DramaBoxUnloadModels` defined no `IS_CHANGED`, so ComfyUI served it from
+   cache and the unload silently never ran. The node exists only for its side
+   effect, so a cached result is always wrong. It now declares `IS_CHANGED`
+   and re-executes every run.
+
+------------------------------------------------------------------------------
+
+DramaBox itself is by Resemble AI (https://github.com/resemble-ai/DramaBox) and
+builds on the LTX-2.3 audio DiT by Lightricks. Model weights are downloaded at
+runtime and are governed by their own licences, not by this one. In particular
+the optional RE-USE reference denoiser is licensed NSCLv1 (non-commercial) and
+is off by default.

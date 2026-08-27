@@ -1,0 +1,31 @@
+# Core — required for every inference path
+huggingface_hub>=0.24
+safetensors>=0.4
+# Audio file I/O (saving, voice-reference loading) — soundfile only, so the
+# pack never touches torchaudio's file-backend machinery (v1's torchcodec
+# failure mode). torchaudio is still needed for tensor ops in the vendored
+# audio VAE (mel-spectrogram + resample), not for file I/O.
+soundfile>=0.12
+torchaudio
+numpy
+einops>=0.7
+# Gemma-3-12B text encoder (vendored LTX-2 code loads it via transformers).
+# accelerate is required by transformers to place the model with device_map
+# (the only way to load the 4-bit/bnb text encoder, which can't be .to()'d).
+transformers>=4.53
+accelerate>=0.25.0
+sentencepiece>=0.1.99
+# Perth watermark apply/detect nodes.
+resemble-perth
+
+# GGUF support (calcuis/gguf) — quantized audio-DiT convert + load. Optional:
+# only needed if you use .gguf DiT files or the convert tool.
+gguf-connector>=3.6
+
+# Optional — 4-bit Gemma text encoder (the recommended ~8 GB path).
+# Without it, choose the bf16 text encoder (~24 GB, HF-gated) instead.
+bitsandbytes>=0.45.0; platform_system != "Darwin"
+
+# Optional — RE-USE voice-reference denoising (NSCLv1, non-commercial):
+# needs mamba-ssm + causal-conv1d (no prebuilt wheels on Windows/macOS);
+# unavailable installs degrade gracefully with denoise skipped.
