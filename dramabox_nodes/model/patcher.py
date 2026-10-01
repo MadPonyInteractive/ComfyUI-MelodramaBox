@@ -31,10 +31,19 @@ def load_patchers(patchers, extra_inference_memory: float = 0.0):
     decides that's needed), reserving `extra_inference_memory` bytes on top
     for activations. Call this immediately before running the modules —
     ComfyUI issue #12440 is the cautionary tale for skipping it (parts of
-    ACE-Step silently sampled on CPU)."""
+    ACE-Step silently sampled on CPU).
+
+    Always a FULL load (MPI-1008). None of these modules use comfy.ops cast
+    layers, and comfy's partial load only offloads modules that do: a plain
+    nn.Linear that misses the budget is just left on the CPU, logged as
+    "loaded completely; 0.00 MB loaded", and the forward then dies with
+    "Expected all tensors to be on the same device". Seen when the 4-bit
+    Gemma (loaded outside comfy) had taken the VRAM. A full load still
+    evicts comfy's own models first; if there is truly no room it is a real
+    OOM, not a wrong-device crash."""
     patchers = [p for p in patchers if p is not None]
     if patchers:
-        mm.load_models_gpu(patchers, memory_required=extra_inference_memory)
+        mm.load_models_gpu(patchers, memory_required=extra_inference_memory, force_full_load=True)
 
 
 def module_vram_bytes(module: torch.nn.Module) -> int:
